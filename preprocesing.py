@@ -73,32 +73,18 @@ if __name__ == '__main__':
         print('conv_df shape : ', conv_df.shape)
 
     # 특징 유사도 추출 -------------------------------------------------
-    conv_df = pd.read_pickle('./conv_vector.pkl')
     print('grouping...')
+    conv_df = pd.read_pickle('./conv_vector.pkl')
+    random_sample = conv_df.sample(n=500, random_state=83)
     conv_df['group_idx'] = 0
-    criteria = []
     group_idx = 0
     cnt = 1
     _length = len(conv_df.index)
     for conv_idx in conv_df.index:
         print('*'*int((cnt/_length)*10))
-        if len(criteria) == 0:
-            criteria = np.array(conv_df.loc[conv_idx])[:256]
-            conv_df.loc[conv_idx, 'group_idx'] = group_idx
-        else:
-            cos_sim = m_pre.cos_similarity(criteria, np.array(conv_df.loc[conv_idx])[:256])
-            if cos_sim > 0.85:
-                conv_df.loc[conv_idx, 'group_idx'] = group_idx
-            else:
-                for i in range(0, group_idx):
-                    temp = conv_df[conv_df['group_idx'] == i].iloc[0][:256]
-                    if m_pre.cos_similarity(temp, np.array(conv_df.loc[conv_idx])[:256]) > 0.8:
-                        conv_df.loc[conv_idx, 'group_idx'] = i
-                        break
-                else:
-                    group_idx += 1
-                    criteria = np.array(conv_df.loc[conv_idx])[:256]
-                    conv_df.loc[conv_idx, 'group_idx'] = group_idx
-
+        sim = []
+        for sample_idx in random_sample.index:
+            sim.append(np.array(random_sample.loc[sample_idx])[:256], np.array(conv_df.loc[conv_idx])[:256])
+        conv_df.loc[conv_idx, 'group'] = sim.index(max(sim))
     print(conv_df.head())
     pd.to_pickle(conv_df, './cos_sim.pkl')
