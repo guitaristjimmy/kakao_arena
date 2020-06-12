@@ -16,7 +16,7 @@ class CfModel:
         print('곡간 플레이 리스트 연관도 추출')
         song_map = defaultdict(dict)
         tag_map = defaultdict(dict)
-        for td in tqdm.tqdm(train_data):
+        for td in tqdm.tqdm(train_data[:25000]):
             id_list = td['songs']
             tags = td['tags']
             for i in id_list:
@@ -41,7 +41,7 @@ class CfModel:
             song_map[sm] = [(i, song_list[i]) for i in song_list.index]
 
         print('song matrix writing start')
-        arena_util.write_json(song_map, 'meta/song_map.json')
+        arena_util.write_json(song_map, 'meta/song_map_test.json')
         print('finish')
 
         print('tag 연관도 정규화를 통한 확률 추출')
@@ -52,7 +52,7 @@ class CfModel:
                     tag_map[tm][tag] /= _sum
 
         print('tag matrix writing start')
-        arena_util.write_json(tag_map, 'meta/tag_map.json')
+        arena_util.write_json(tag_map, 'meta/tag_map_test.json')
         print('finish')
 
 
